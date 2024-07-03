@@ -1,10 +1,25 @@
-#include <bits/stdc++.h>
+#include <iostream>
 #include <Windows.h>
 
 
 
 using namespace std;
 
+
+void ClearScreen()
+  {
+   DWORD n;
+  DWORD size;
+  COORD coord = {0};
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
+  GetConsoleScreenBufferInfo ( h, &csbi );
+  size = csbi.dwSize.X * csbi.dwSize.Y;
+  FillConsoleOutputCharacter ( h, TEXT ( ' ' ), size, coord, &n );
+  GetConsoleScreenBufferInfo ( h, &csbi );
+  FillConsoleOutputAttribute ( h, csbi.wAttributes, size, coord, &n );
+  SetConsoleCursorPosition ( h, coord );
+  }
 
 // void gotoxy(int x, int y) { 
 //     COORD pos = {x, y};
@@ -29,29 +44,42 @@ string Map[] = {
 "############\n"};
 
 string MenuText[] = {
-    "Новая игра\n",
-    "Выбрать сложность\n",
-    "Рекорды\n",
-    "Выход\n",
-    "Уровень: "
-};
+    "1> New game\n",
+    "2> Choice level\n",
+    "3> Records\n",
+    "4> Exit\n",
+    "Your level: "};
+int level = 1;
 
 
 void menu(){
-    for(int i=0; i<MENUPOINTS; i++){
+    ClearScreen();
+    for(int i=0; i<MENUPOINTS-1; i++){
         cout<<MenuText[i];
     }
+    cout<<MenuText[MENUPOINTS-1]<<level<<"\n";
+}
+
+void choiceLevel(){
+    int lev;
+    cin>>lev;
+    level = lev;
 }
 
 
 
 bool isRunning = true;
 int main(){
-    setlocale(0, ""); 
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
     int time = clock();
-    menu();
-    // while(isRunning){
-    //     cout<<"1";
+    int choice;
+    // menu();
+    while(isRunning){
+        menu();
+        cin>>choice;
+    }
+    //     cout<<"1";}
     //     for(int x =0; x < WIDTH; x++){
     //         cout<<Map[x];
     //     }
