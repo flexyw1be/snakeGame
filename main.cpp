@@ -1,9 +1,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <string>
-
-
-
+#include<conio.h>
 using namespace std;
 
 
@@ -22,6 +20,63 @@ void ClearScreen()
   SetConsoleCursorPosition ( h, coord );
   }
 
+  bool exxit = false;
+int currMenu = 0;
+int ch = 0;
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+string a = "New Game ";
+string b = "Choice level ";
+string c = "Records ";
+string d = "Exit ";
+void gotoxy(short x, short y)
+{
+    SetConsoleCursorPosition(hStdOut, {x, y});
+}
+
+void showMenu()
+{
+    while (!exxit)
+    {
+        cout << a << endl;
+        cout << b << endl;
+        cout << c << endl;
+        cout << d << endl;
+
+        gotoxy(0, currMenu);
+
+        ch = _getch();
+        if (ch == 224){
+            ch = _getch();
+        }
+        switch(ch)
+        {
+            case 27: exxit = true;   break;
+            case 72: currMenu--;    break;
+            case 80: currMenu++;    break;
+            case 13:
+                if (currMenu == 0){
+                    system("cls");
+                    cout << "idet igra" << endl;
+                }
+                else if (currMenu == 1){
+                    system("cls");
+                    cout << "gg" << endl;
+                }
+                else if (currMenu == 2){
+                    system("cls");
+                    exxit = true;
+                    cout << "plaki-plaki" << endl;
+                }
+            break;
+        }
+        if (currMenu < 0) currMenu = 0;
+        if (currMenu > 3) currMenu = 3;
+
+    }
+}
+
+
+
 // void gotoxy(int x, int y) { 
 //     COORD pos = {x, y};
 //     HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -31,8 +86,6 @@ void ClearScreen()
 const int WIDTH = 10;
 const int HEIGHT = 10;
 const int MENUPOINTS = 5;
-const int SIZE = 12;
-
 string Map[] = {
 "############\n",
 "#          #\n", 
@@ -44,7 +97,6 @@ string Map[] = {
 "#          #\n",
 "#          #\n",
 "############\n"};
-
 string MenuText[] = {
     "1> New game\n",
     "2> Choice level\n",
@@ -54,19 +106,19 @@ string MenuText[] = {
 int level = 1;
 
 
-void menu(){
-    ClearScreen();
-    for(int i=0; i<MENUPOINTS-1; i++){
-        cout<<MenuText[i];
-    }
-    cout<<MenuText[MENUPOINTS-1]<<level<<"\n";
-}
+// void menu(){
+//     ClearScreen();
+//     for(int i=0; i<MENUPOINTS-1; i++){
+//         cout<<MenuText[i];
+//     }
+//     cout<<MenuText[MENUPOINTS-1]<<level<<"\n";
+// }
 
-void choiceLevel(){
-    int lev;
-    cin>>lev;
-    level = lev;
-}
+// void choiceLevel(){
+//     int lev;
+//     cin>>lev;
+//     level = lev;
+// }
 
 
 
@@ -76,11 +128,11 @@ int main(){
     SetConsoleOutputCP(1251);
     int time = clock();
     int choice;
+    showMenu();
     // menu();
-    while(isRunning){
-        menu();
-        cin>>choice;
-    }
+    // while(isRunning){
+    //     showMenu();
+    // }
     //     cout<<"1";}
     //     for(int x =0; x < WIDTH; x++){
     //         cout<<Map[x];
