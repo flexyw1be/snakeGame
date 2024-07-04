@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Windows.h>
+#include <string>
 
 
 
@@ -30,6 +31,7 @@ void ClearScreen()
 const int WIDTH = 10;
 const int HEIGHT = 10;
 const int MENUPOINTS = 5;
+const int SIZE = 12;
 
 string Map[] = {
 "############\n",
