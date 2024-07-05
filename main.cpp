@@ -1,26 +1,25 @@
 #include <iostream>
 #include <Windows.h>
 #include <string>
-#include<conio.h>
+#include <conio.h>
 using namespace std;
 
 
-void ClearScreen()
-  {
-   DWORD n;
-  DWORD size;
-  COORD coord = {0};
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
-  GetConsoleScreenBufferInfo ( h, &csbi );
-  size = csbi.dwSize.X * csbi.dwSize.Y;
-  FillConsoleOutputCharacter ( h, TEXT ( ' ' ), size, coord, &n );
-  GetConsoleScreenBufferInfo ( h, &csbi );
-  FillConsoleOutputAttribute ( h, csbi.wAttributes, size, coord, &n );
-  SetConsoleCursorPosition ( h, coord );
-  }
+void ClearScreen(){
+    DWORD n;
+    DWORD size;
+    COORD coord = {0};
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
+    GetConsoleScreenBufferInfo ( h, &csbi );
+    size = csbi.dwSize.X * csbi.dwSize.Y;
+    FillConsoleOutputCharacter ( h, TEXT ( ' ' ), size, coord, &n );
+    GetConsoleScreenBufferInfo ( h, &csbi );
+    FillConsoleOutputAttribute ( h, csbi.wAttributes, size, coord, &n );
+    SetConsoleCursorPosition ( h, coord );
+}
 
-  bool exxit = false;
+bool exxit = false;
 int currMenu = 0;
 int ch = 0;
 HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -28,28 +27,27 @@ string a = "New Game ";
 string b = "Choice level ";
 string c = "Records ";
 string d = "Exit ";
+
+
 void gotoxy(short x, short y)
 {
     SetConsoleCursorPosition(hStdOut, {x, y});
 }
 
-void showMenu()
-{
-    while (!exxit)
-    {
+void showMenu(){
+    while (!exxit){
         cout << a << endl;
         cout << b << endl;
         cout << c << endl;
         cout << d << endl;
 
-        gotoxy(0, currMenu);
+        gotoxy(0, currMenu-1);
 
         ch = _getch();
         if (ch == 224){
             ch = _getch();
         }
-        switch(ch)
-        {
+        switch(ch){
             case 27: exxit = true;   break;
             case 72: currMenu--;    break;
             case 80: currMenu++;    break;
@@ -77,11 +75,6 @@ void showMenu()
 
 
 
-// void gotoxy(int x, int y) { 
-//     COORD pos = {x, y};
-//     HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-//     SetConsoleCursorPosition(output, pos);
-// }
 
 const int WIDTH = 10;
 const int HEIGHT = 10;
