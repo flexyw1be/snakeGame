@@ -103,8 +103,10 @@ void getRecords(){
             ch = _getch();
         }
         switch(ch){
-            case 13:exxit = true;
+            case 13: exxit = true;
+            case 27: exxit = true;   break;
             }
+
         }
 }
 
@@ -177,7 +179,7 @@ void showMenu(){
             ch = _getch();
         }
         switch(ch){
-            case 27: exxit = true;   break;
+            case 27: exxit = true;  system("cls");   break;
             case 72: currMenu--;    break;
             case 80: currMenu++;    break;
             case 13:
@@ -213,7 +215,7 @@ int main(){
     char Title[1024];
     GetConsoleTitle(Title, 1024); // Узнаем имя окна
     hwnd=FindWindow(NULL, Title); // Узнаем hwnd окна
-    MoveWindow(hwnd,0,0,400,400,TRUE);//xnew,ynew,wnew,hnew -новые положение x,y, ширина и высота
+    MoveWindow(hwnd,0,0,500,500,TRUE);//xnew,ynew,wnew,hnew -новые положение x,y, ширина и высота
     HANDLE console_color;
     console_color = GetStdHandle(
         STD_OUTPUT_HANDLE);
