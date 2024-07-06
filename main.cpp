@@ -10,7 +10,7 @@ using namespace std;
 //INITIALIZING VARIABLES
 bool isRunning = true;
 const int WIDTH = 23;
-const int HEIGHT = 20;
+const int HEIGHT = 22;
 const int MENUPOINTS = 5;
 const int MAX_LEN_SNAKE = (WIDTH - 3) * (HEIGHT -2);
 
@@ -46,14 +46,14 @@ string Map[] = {
 "#                    #\n",
 "#                    #\n",
 "#                    #\n",
-"#                    #\n"
 "#                    #\n",
 "#                    #\n",
 "#                    #\n",
 "#                    #\n",
-"#                    #\n"
-"#                    #\n"
-"#                    #\n"
+"#                    #\n",
+"#                    #\n",
+"#                    #\n",
+"#                    #\n",
 "######################\n"
 };
 
