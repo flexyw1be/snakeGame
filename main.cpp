@@ -3,10 +3,12 @@
 #include <string>
 #include <conio.h>
 #include <stdlib.h>
+#include <fstream>
 using namespace std;
 
 
 
+ifstream fin;
 //INITIALIZING VARIABLES
 bool isRunning = true;
 const int WIDTH = 23;
@@ -31,7 +33,6 @@ bool exxit = false;
 int currMenu = 0;
 int ch = 0;
 HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-
 string Map[] = {
 "######################\n",
 "|                    |\n",
@@ -87,6 +88,14 @@ void ClearScreen(){
     SetConsoleCursorPosition ( h, coord );
 }
 
+void loadMap(){
+    string str;
+    for(int i = 0; i < HEIGHT; i++){
+        getline(fin, str);
+        Map[i] = str + '\n';
+    }
+}
+
 
 void gotoxy(short x, short y){
     SetConsoleCursorPosition(hStdOut, {x, y});
@@ -135,12 +144,18 @@ void setLevel(){
                 system("cls");
                 if (currMenu == 0){
                     level = 1;
+                    fin.close();
+                    fin.open("map1.txt");
                 }
                 else if (currMenu == 1){
                     level = 2;
+                    fin.close();
+                    fin.open("map2.txt");
                 }
                 else if (currMenu == 2){
                     level = 3;
+                    fin.close();
+                    fin.open("map3.txt");
                 }
             break;
         }
@@ -165,6 +180,7 @@ void checkKeys(){
 }
 
 void game(){
+    loadMap();
     snake_x[0] = WIDTH/2;
     snake_y[0] = HEIGHT/2;
     srand((unsigned int)time(NULL));
@@ -181,6 +197,7 @@ void game(){
             food_y = 1 + (rand()%(HEIGHT-2));
             snake_len++;
         }
+        if(Map[snake_y[0]][snake_x[0]] != ' '){isRunning = false;cout<<1;}
         if((clock() - time)* 4 / CLOCKS_PER_SEC >= 1){
             time = clock();
             if(snake_dir == UP) --snake_y[0];
@@ -207,7 +224,6 @@ void game(){
         }
     }
 }
-
 
 void showMenu(){
     while (!exxit){
@@ -263,10 +279,12 @@ int main(){
     HANDLE console_color;
 
     console_color = GetStdHandle(STD_OUTPUT_HANDLE);
-
     SetConsoleTextAttribute(console_color, 6);
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
+    fin.open("map1.txt");
+
+
 
     showMenu();
     return 0;
