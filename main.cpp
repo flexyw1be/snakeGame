@@ -6,6 +6,8 @@
 #include <fstream>
 using namespace std;
 
+//srand((unsigned int)time(NULL));
+
 
 
 ifstream fin;
@@ -21,12 +23,6 @@ const int DOWN = 1;
 const int LEFT = 2;
 const int RIGHT = 3;
 
-int snake_dir = UP;
-
-char snake = 'o';
-int snake_x[MAX_LEN_SNAKE] = {0};
-int snake_y[MAX_LEN_SNAKE] = {0};
-int snake_len = 2;
 
 int level = 1;
 bool exxit = false;
@@ -71,7 +67,25 @@ string LevelsText[] = {
     "3\n"
 };
 
+class Food{
+public:
+     int x = 1 + (rand()%(WIDTH-3));
+     int y = 1 + (rand()%(HEIGHT-2));
+     char sign = 'F';
 
+
+};
+
+
+class Snake{
+public:
+    int dir = UP;
+    char sign = 'o';
+    int x[MAX_LEN_SNAKE] = {0};
+    int y[MAX_LEN_SNAKE] = {0};
+    int len = 2;
+
+};
 
 //BASIC FUNCTIONS
 void ClearScreen(){
@@ -164,68 +178,71 @@ void setLevel(){
     }
 }
 
-void checkKeys(){
+Snake checkKeys(Snake snake){
     if (GetKeyState('W') & 0x8000){
-            if(snake_dir != DOWN) snake_dir = UP;
+            if(snake.dir != DOWN) snake.dir = UP;
         }
         if (GetKeyState('S') & 0x8000){
-            if(snake_dir != UP) snake_dir = DOWN;
+            if(snake.dir != UP) snake.dir = DOWN;
         }
         if (GetKeyState('A') & 0x8000){
-            if(snake_dir != RIGHT) snake_dir = LEFT;
+            if(snake.dir != RIGHT) snake.dir = LEFT;
         }
         if (GetKeyState('D') & 0x8000){
-            if(snake_dir != LEFT) snake_dir = RIGHT;
+            if(snake.dir != LEFT) snake.dir = RIGHT;
         }
+    return snake;
 }
 
-void game(){
+void game(Snake snake){
     loadMap();
-    snake_x[0] = WIDTH/2;
-    snake_y[0] = HEIGHT/2;
+    snake.x[0] = WIDTH/2;
+    snake.y[0] = HEIGHT/2;
     srand((unsigned int)time(NULL));
     int time = clock();
-    int food_x = 1 + (rand()%(WIDTH-3));
-    int food_y = 1 + (rand()%(HEIGHT-2));
-    char food = '*';
+    Food food;
 
     while(isRunning){
         gotoxy(0, 0);
-        checkKeys();
-        if(snake_x[0] == food_x && snake_y[0] == food_y){
-            food_x = 1 + (rand()%(WIDTH-3));
-            food_y = 1 + (rand()%(HEIGHT-2));
-            snake_len++;
+        snake = checkKeys(snake);
+        if(snake.x[0] == food.x && snake.y[0] == food.y){
+            food.x = 1 + (rand()%(WIDTH-3));
+            food.x = 1 + (rand()%(HEIGHT-2));
+            snake.len++;
         }
-        if(Map[snake_y[0]][snake_x[0]] != ' '){isRunning = false;cout<<1;}
+        if(Map[snake.y[0]][snake.x[0]] != ' '){isRunning = false;cout<<1;}
         if((clock() - time)* 4 / CLOCKS_PER_SEC >= 1){
             time = clock();
-            if(snake_dir == UP) --snake_y[0];
-            if(snake_dir == DOWN) ++snake_y[0];
-            if(snake_dir == LEFT) --snake_x[0];
-            if(snake_dir == RIGHT) ++snake_x[0];
-            if(snake_x[0] == 0 || snake_x[0] == WIDTH-2 || snake_y[0] == 0 || snake_y[0] == HEIGHT-1) isRunning = false;
+            if(snake.dir == UP) --snake.y[0];
+            if(snake.dir == DOWN) ++snake.y[0];
+            if(snake.dir == LEFT) --snake.x[0];
+            if(snake.dir == RIGHT) ++snake.x[0];
+            if(snake.x[0] == 0 || snake.x[0] == WIDTH-2 || snake.y[0] == 0 || snake.y[0] == HEIGHT-1) isRunning = false;
 
-            Map[food_y][food_x] = food;
+            Map[food.y][food.x] = food.sign;
 
-            for(int i = snake_len-2; i>= 0; i--){
-                snake_x[i+1] = snake_x[i];
-                snake_y[i+1] = snake_y[i];
+            for(int i = snake.len-2; i>= 0; i--){
+                snake.x[i+1] = snake.x[i];
+                snake.y[i+1] = snake.y[i];
             }
 
-            for(int i = 0; i < snake_len; i++) Map[snake_y[i]][snake_x[i]] = snake;
-            Map[snake_y[0]][snake_x[0]] = '0';
+            for(int i = 0; i < snake.len; i++) Map[snake.y[i]][snake.x[i]] = snake.sign;
+            Map[snake.y[0]][snake.x[0]] = '0';
 
             for(int i = 0; i < HEIGHT; i++) cout<<Map[i];
-            cout<<"Lenght: "<<snake_len -1 ;
+            cout<<"Lenght: "<<snake.len -1 ;
 
-            for(int i = 0; i < snake_len; i++) Map[snake_y[i]][snake_x[i]] = ' ';
+            for(int i = 0; i < snake.len; i++) Map[snake.y[i]][snake.x[i]] = ' ';
 
         }
     }
+    isRunning = true;
+    fin.close();
+                    fin.open("map1.txt");
 }
 
-void showMenu(){
+void showMenu(Snake snake){
+    exxit = false;
     while (!exxit){
         system("cls");
          for(int i=0; i<MENUPOINTS-1; i++){
@@ -246,7 +263,7 @@ void showMenu(){
                 system("cls");
                 if (currMenu == 0){
                     cout << "idet igra" << endl;
-                    game();
+                    game(snake);
                 }
                 else if (currMenu == 1){
                     cout << "gg" << endl;
@@ -284,8 +301,8 @@ int main(){
     SetConsoleOutputCP(1251);
     fin.open("map1.txt");
 
+        Snake snake;
 
-
-    showMenu();
+    showMenu(snake);
     return 0;
 }
