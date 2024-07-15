@@ -140,7 +140,7 @@ public:
                 if(currMenu == i)cout<<"\t\t\t\t>>>\t"<<MenuText[i];
                 else cout<<"\t\t\t\t\t"<<MenuText[i];
             }
-            cout<<"\n\t\t\t\t\tYour map: "<<selectMap<<endl;
+            cout<<"\n\t\t____________________________________________________________\n\t\t\t\t\tYour map: "<<selectMap<<endl;
             cout<<"\t\t\t\t\t\Your Difficulty: "<<LevelsText[diff/2 - 2];
 
             gotoxy(0, 13+currMenu);
