@@ -25,8 +25,10 @@ const int RIGHT = 3;
 
 int level = 1;
 bool exxit = false;
+string selectMap = "1 map";
 int currMenu = 0;
 int ch = 0;
+int diff = 4;
 HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 string Map[] = {
 "######################\n",
@@ -53,21 +55,38 @@ string Map[] = {
 "######################\n"
 };
 
+string Logo = {
+"\n\n\t ZZZZZZZZZZZ    ZZZZ    ZZZZ         ZZ         ZZZZ    ZZZZ    ZZZZZZZZZZZZ\n"
+"\tZZZZZZZZZZZZ    ZZZZZ   ZZZZ        ZZZZ        ZZZZ   ZZZZ     ZZZZZZZZZZZZ\n"
+"\tZZZZ            ZZZZZ   ZZZZ       ZZZZZZ       ZZZZ  ZZZZ      ZZZZ        \n"
+"\tZZZZ            ZZZZ Z  ZZZZ      ZZZ  ZZZ      ZZZZ ZZZZ       ZZZZ        \n"
+"\tZZZZZZZZZZZ     ZZZZ Z  ZZZZ     ZZZ    ZZZ     ZZZZZZZZ        ZZZZZZZZZZZZ\n"
+"\t ZZZZZZZZZZZ    ZZZZ  Z ZZZZ    ZZZ      ZZZ    ZZZZZZZZ        ZZZZZZZZZZZZ\n"
+"\t        ZZZZ    ZZZZ  Z ZZZZ    ZZZ      ZZZ    ZZZZ ZZZZ       ZZZZ        \n"
+"\t        ZZZZ    ZZZZ   ZZZZZ    ZZZZZZZZZZZZ    ZZZZ  ZZZZ      ZZZZ        \n"
+"\tZZZZZZZZZZZZ    ZZZZ   ZZZZZ    ZZ        ZZ    ZZZZ   ZZZZ     ZZZZZZZZZZZZ\n"
+"\tZZZZZZZZZZZ     ZZZZ    ZZZZ    ZZ        ZZ    ZZZZ    ZZZZ    ZZZZZZZZZZZZ\n\n\n",
+};
+
 string MenuText[] = {
     "New game\n",
-    "Choice level\n",
+    "Choose difficulty\n",
+    "Choose map\n",
     "Records\n",
     "Exit\n"
 };
 
 string LevelsText[] = {
-    "1\n",
-    "2\n",
-    "3\n"
+    "easy\n",
+    "hard\n",
+    "insane\n"
 };
 
-
-
+string MapsText[] = {
+    "1 map\n",
+    "2 map\n",
+    "3 map\n"
+};
 
 class Food{
 public:
@@ -116,10 +135,15 @@ public:
         exxit = false;
         while (!exxit){
             system("cls");
-            for(int i=0; i<MENUPOINTS-1; i++)cout<<MenuText[i];
-            cout<<"Your level: "<<level;
+            cout<<Logo;
+            for(int i=0; i<MENUPOINTS; i++){
+                if(currMenu == i)cout<<"\t\t\t\t>>>\t"<<MenuText[i];
+                else cout<<"\t\t\t\t\t"<<MenuText[i];
+            }
+            cout<<"\n\t\t\t\t\tYour map: "<<selectMap<<endl;
+            cout<<"\t\t\t\t\t\Your Difficulty: "<<LevelsText[diff/2 - 2];
 
-            gotoxy(0, currMenu);
+            gotoxy(0, 13+currMenu);
             ch = _getch();
             if (ch == 224) ch = _getch();
 
@@ -130,35 +154,84 @@ public:
                 case 13:
                     system("cls");
                     if (currMenu == 0){
-                        cout << "idet igra" << endl;
                         run();
                     }
                     if (currMenu == 1){
-                        cout << "gg" << endl;
-                        setLevel();
-                        exxit = false;
+                            setDifficulty();
                     }
                     if (currMenu == 2){
-                        getRecords();
-                        exxit = false;
+                        setMap();
                     }
                     if (currMenu == 3){
-                        exxit = true;
+                        getRecords();
                     }
                 break;
             }
         if (currMenu < 0) currMenu = 0;
-        if (currMenu > 3) currMenu = 3;
+        if (currMenu > 4) currMenu = 4;
         }
     }
 
-    void setLevel(){
+    void setMap(){
         exxit = false;
         currMenu = 0;
         while (!exxit){
             system("cls");
-            for(int i=0; i<size(LevelsText); i++)cout<<LevelsText[i];
-            cout<<"Your level: "<<level;
+            cout<<Logo;
+            cout<<"\t\t\t\t\tChoose Your Map\n";
+            for(int i=0; i<size(MapsText); i++){
+                if(currMenu == i)cout<<"\t\t\t\t>>>\t"<<MapsText[i];
+                else cout<<"\t\t\t\t\t"<<MapsText[i];
+            }
+            cout<<"\t\t\t\t\tYour map: "<<selectMap;
+            gotoxy(0, currMenu);
+            ch = _getch();
+            if (ch == 224)ch = _getch();
+
+            switch(ch){
+                case 27: exxit = true;   break;
+                case 72: currMenu--;    break;
+                case 80: currMenu++;    break;
+                case 13:
+                    exxit = true;
+                    system("cls");
+                    if (currMenu == 0){
+                        selectMap = "1 map";
+                        fin.close();
+                        fin.open("map1.txt");
+                    }
+                    if (currMenu == 1){
+                        selectMap = "2 map";
+                        fin.close();
+                        fin.open("map2.txt");
+                    }
+                    if (currMenu == 2){
+                        selectMap = "3 map";
+                        fin.close();
+                        fin.open("map3.txt");
+                    }
+                break;
+            }
+            if (currMenu < 0) currMenu = 0;
+            if (currMenu > size(MapsText)-1) currMenu = size(MapsText)-1;
+        }
+                exxit = false;
+                currMenu = 0;
+
+    }
+
+    void setDifficulty(){
+        exxit = false;
+        currMenu = 0;
+        while (!exxit){
+            system("cls");
+            cout<<Logo;
+            cout<<"\t\t\t\t\tChoose Your Difficulty\n";
+            for(int i=0; i<size(LevelsText); i++){
+                if(currMenu == i)cout<<"\t\t\t\t>>>\t"<<LevelsText[i];
+                else cout<<"\t\t\t\t\t"<<LevelsText[i];
+            }
+            cout<<"\t\t\t\t\tYour Difficulty: "<<LevelsText[diff/2 - 2];
 
             gotoxy(0, currMenu);
             ch = _getch();
@@ -172,25 +245,22 @@ public:
                     exxit = true;
                     system("cls");
                     if (currMenu == 0){
-                        level = 1;
-                        fin.close();
-                        fin.open("map1.txt");
+                        diff = 4;
                     }
                     if (currMenu == 1){
-                        level = 2;
-                        fin.close();
-                        fin.open("map2.txt");
+                        diff = 6;
                     }
                     if (currMenu == 2){
-                        level = 3;
-                        fin.close();
-                        fin.open("map3.txt");
+                        diff = 8;
                     }
                 break;
             }
             if (currMenu < 0) currMenu = 0;
             if (currMenu > 3) currMenu = 3;
         }
+                exxit = false;
+                currMenu = 0;
+
     }
 
     void run(){
@@ -211,7 +281,7 @@ public:
             if(snake.x[0] == WIDTH-1) snake.x[0] = 0;
             if(snake.x[0] == 0) snake.x[0] = WIDTH-2;
             if(Map[snake.y[0]][snake.x[0]] != ' '){isRunning = false;cout<<1;}
-            if((clock() - time)* 4 / CLOCKS_PER_SEC >= 1){
+            if((clock() - time)* diff / CLOCKS_PER_SEC >= 1){
                 time = clock();
                 if(snake.dir == UP) --snake.y[0];
                 if(snake.dir == DOWN) ++snake.y[0];
@@ -229,7 +299,7 @@ public:
                 for(int i = 0; i < snake.len; i++) Map[snake.y[i]][snake.x[i]] = snake.sign;
                 Map[snake.y[0]][snake.x[0]] = '0';
 
-                for(int i = 0; i < HEIGHT; i++) cout<<Map[i];
+                for(int i = 0; i < HEIGHT; i++) cout<<"\t\t\t\t"<<Map[i];
                 cout<<"Lenght: "<<snake.len -1 ;
 
                 for(int i = 0; i < snake.len; i++) Map[snake.y[i]][snake.x[i]] = ' ';
@@ -291,7 +361,8 @@ int main(){
     char Title[1024];
     GetConsoleTitle(Title, 1024);
     hwnd=FindWindow(NULL, Title);
-    MoveWindow(hwnd,0,0,500,500,TRUE);
+    SetConsoleTextAttribute(hwnd,FOREGROUND_GREEN | FOREGROUND_INTENSITY );
+    MoveWindow(hwnd,0,0,800,500,TRUE);
     HANDLE console_color;
     srand((unsigned int)time(NULL));
     console_color = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -299,7 +370,7 @@ int main(){
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
-system("color 8E");
+    system("color 8E");
     fin.open("map1.txt");
     Game game;
     game.showMenu();
