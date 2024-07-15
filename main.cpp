@@ -23,13 +23,19 @@ const int LEFT = 2;
 const int RIGHT = 3;
 
 
+
+
 int level = 1;
 bool exxit = false;
-string selectMap = "1 map";
 int currMenu = 0;
 int ch = 0;
 int diff = 4;
+int easy_r=0, hard_r= 0, insane_r=0;
+
 HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+string selectMap = "1 map";
+
 string Map[] = {
 "######################\n",
 "|                    |\n",
@@ -88,6 +94,19 @@ string MapsText[] = {
     "3 map\n"
 };
 
+
+void loadRecords(){
+    fin.open("records.txt");
+    string str;
+    getline(fin, str);
+    easy_r =  stoi(str);
+    getline(fin, str);
+    hard_r =  stoi(str);
+    getline(fin, str);
+    insane_r =  stoi(str);
+    fin.close();
+}
+
 class Food{
 public:
      int x = 1 + (rand()%(WIDTH-3));
@@ -131,6 +150,7 @@ public:
 
     void gotoxy(short x, short y){SetConsoleCursorPosition(hStdOut, {x, y});}
 
+
     void showMenu(){
         exxit = false;
         while (!exxit){
@@ -173,7 +193,15 @@ public:
     }
 
     void endGame(){
+        ofstream out;
         exxit = false;
+        if(diff == 4 && easy_r < snake.len) easy_r = snake.len;
+        if(diff == 6 && hard_r < snake.len) hard_r = snake.len;
+        if(diff == 8 && insane_r < snake.len) insane_r = snake.len;
+        out.open("records.txt");
+        out << easy_r<<endl<<hard_r<<endl<<insane_r;
+
+
         while (!exxit){
             system("cls");
             cout<<Logo;
@@ -317,7 +345,7 @@ public:
                 Map[snake.y[0]][snake.x[0]] = '0';
 
                 for(int i = 0; i < HEIGHT; i++) cout<<"\t\t\t\t"<<Map[i];
-                cout<<"Lenght: "<<snake.len -1 ;
+                cout<<"\t\t\t\t\tScore: "<<snake.len -1 ;
 
                 for(int i = 0; i < snake.len; i++) Map[snake.y[i]][snake.x[i]] = ' ';
 
@@ -332,19 +360,21 @@ public:
 
     void getRecords(){
         exxit = false;
-         while (!exxit){
+        while (!exxit){
             system("cls");
-            cout<<"Your records could be here";
+            cout<<Logo;
+            cout<<"\t\t\t\t\tRecords";
+            cout<<"\n\t\t\t\t\tEasy mode: "<<easy_r;
+            cout<<"\n\t\t\t\t\tHard mode: "<<hard_r;
+            cout<<"\n\t\t\t\t\tInsane mode: "<<insane_r;
             ch = _getch();
-            if (ch == 224){
-                ch = _getch();
+            if (ch == 224)ch = _getch();
+             switch(ch){
+                case 13:
+                    exxit = true;
             }
-            switch(ch){
-                case 13: exxit = true;
-                case 27: exxit = true;   break;
-                }
-
-            }
+        }
+        exxit = false;
     }
 
     void loadMap(){
@@ -387,7 +417,7 @@ int main(){
     SetConsoleTextAttribute(console_color, 6);
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-
+    loadRecords();
     system("color 8E");
     fin.open("map1.txt");
     Game game;
