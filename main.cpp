@@ -172,6 +172,23 @@ public:
         }
     }
 
+    void endGame(){
+        exxit = false;
+        while (!exxit){
+            system("cls");
+            cout<<Logo;
+            cout<<"\n\n\n\n\t\t\t\t\tYou Lose";
+            cout<<"\n\t\t\t\t\tYour score: "<<snake.len;
+            ch = _getch();
+            if (ch == 224)ch = _getch();
+             switch(ch){
+                case 13:
+                    exxit = true;
+            }
+        }
+        exxit = false;
+    }
+
     void setMap(){
         exxit = false;
         currMenu = 0;
@@ -306,6 +323,7 @@ public:
 
             }
         }
+        endGame();
         isRunning = true;
         fin.close();
         fin.open("map1.txt");
