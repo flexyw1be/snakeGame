@@ -410,7 +410,7 @@ int main(){
     GetConsoleTitle(Title, 1024);
     hwnd=FindWindow(NULL, Title);
     SetConsoleTextAttribute(hwnd,FOREGROUND_GREEN | FOREGROUND_INTENSITY );
-    MoveWindow(hwnd,0,0,800,500,TRUE);
+    MoveWindow(hwnd,0,0,1920,1080,TRUE);
     HANDLE console_color;
     srand((unsigned int)time(NULL));
     console_color = GetStdHandle(STD_OUTPUT_HANDLE);
