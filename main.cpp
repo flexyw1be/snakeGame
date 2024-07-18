@@ -1,4 +1,4 @@
-#include <iostream>
+#include <iostream> //подключение библиотек
 #include <windows.h>
 #include <string>
 #include <conio.h>
@@ -6,37 +6,40 @@
 #include <fstream>
 using namespace std;
 
+ifstream fin; //подключаем модуль для работы с файлами
 
+//БЛОК ОБЪЯВЛЕНИЯ ГЛОБАЛЬНЫХ ПЕРЕМЕННЫХ
 
-
-ifstream fin;
-//INITIALIZING VARIABLES
-bool isRunning = true;
-const int WIDTH = 23;
-const int HEIGHT = 22;
-const int MENUPOINTS = 5;
-const int MAX_LEN_SNAKE = (WIDTH - 3) * (HEIGHT -2);
-
+//Объявление констант
+const int WIDTH = 23; //ширина игрового поля
+const int HEIGHT = 22; //высота игрового поля
+const int MENUPOINTS = 5; //кол-во пунктов в меню
+const int MAX_LEN_SNAKE = (WIDTH - 3) * (HEIGHT -2); //максимальная длина змейки
+//переменные, отвечающие за направление движения
 const int UP = 0;
 const int DOWN = 1;
 const int LEFT = 2;
 const int RIGHT = 3;
 
 
+bool isRunning = true; //переменная для работы игрового цикла
+bool exxit = false; //переменная для работы цикла меню
 
+// целочисленные переменные
+int coef; //коэффицент для увеличения скорости змейки
+int currMenu = 0; //переменная для выбора пункта меню
+int ch = 0; //переменная дла запоминания нажатия клавиатуры
+int diff = 4; //сложность игры
+int easy_r = 0; //рекорд в легком режиме
+int hard_r= 0; //рекорд в среднем режиме
+int insane_r=0; //рекорд в сложнос режиме
+int bestScore; //лучший результат в выбранном режиме
 
-int level = 1;
-bool exxit = false;
-int currMenu = 0;
-int ch = 0;
-int diff = 4;
-int easy_r=0, hard_r= 0, insane_r=0;
+HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE); //номер потока для буфера консоли в системе,
 
-HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+string selectMap = "1 map"; //текущая карта
 
-string selectMap = "1 map";
-
-string Map[] = {
+string Map[] = { //массив строк - карта игрового поля
 "######################\n",
 "|                    |\n",
 "|                    |\n",
@@ -61,7 +64,7 @@ string Map[] = {
 "######################\n"
 };
 
-string Logo = {
+string Logo = { //лого игры
 "\n\n\t ZZZZZZZZZZZ    ZZZZ    ZZZZ         ZZ         ZZZZ    ZZZZ    ZZZZZZZZZZZZ\n"
 "\tZZZZZZZZZZZZ    ZZZZZ   ZZZZ        ZZZZ        ZZZZ   ZZZZ     ZZZZZZZZZZZZ\n"
 "\tZZZZ            ZZZZZ   ZZZZ       ZZZZZZ       ZZZZ  ZZZZ      ZZZZ        \n"
@@ -74,7 +77,7 @@ string Logo = {
 "\tZZZZZZZZZZZ     ZZZZ    ZZZZ    ZZ        ZZ    ZZZZ    ZZZZ    ZZZZZZZZZZZZ\n\n\n",
 };
 
-string MenuText[] = {
+string MenuText[] = { //массив строк - пункты меня
     "New game\n",
     "Choose difficulty\n",
     "Choose map\n",
@@ -82,102 +85,133 @@ string MenuText[] = {
     "Exit\n"
 };
 
-string LevelsText[] = {
+string LevelsText[] = { //массив строк - меню выбора сложности
     "easy\n",
     "hard\n",
     "insane\n"
 };
 
-string MapsText[] = {
+string MapsText[] = { //массив строк - меню выбора карты
     "1 map\n",
     "2 map\n",
     "3 map\n"
 };
 
+//БЛОК ОПИСАНИЯ ФУНКЦИЙ
 
-void loadRecords(){
-    fin.open("records.txt");
-    string str;
-    getline(fin, str);
-    easy_r =  stoi(str);
-    getline(fin, str);
-    hard_r =  stoi(str);
-    getline(fin, str);
-    insane_r =  stoi(str);
-    fin.close();
+void ClearScreen(){ //функция очищения консоли
+    DWORD n;
+    DWORD size;
+    COORD coord = {0};
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetConsoleScreenBufferInfo(h, &csbi);
+    size = csbi.dwSize.X * csbi.dwSize.Y;
+    FillConsoleOutputCharacter(h, TEXT ( ' ' ), size, coord, &n);
+    GetConsoleScreenBufferInfo(h, &csbi);
+    FillConsoleOutputAttribute(h, csbi.wAttributes, size, coord, &n);
+    SetConsoleCursorPosition(h, coord);
 }
 
-class Food{
+void loadRecords(){ //функция загрузки рекордов
+    fin.open("records.txt"); //открываем текстовый файл с рекордами
+    string str; //инициализируем переменную типа string
+    getline(fin, str); //считываем строку с рекордом в легком режиме
+    easy_r = stoi(str); //преобразуем в целочисленный вид
+    getline(fin, str);//считываем строку с рекордом в среднем режиме
+    hard_r = stoi(str);//преобразуем в целочисленный вид
+    getline(fin, str);//считываем строку с рекордом в сложном режиме
+    insane_r = stoi(str);//преобразуем в целочисленный вид
+    fin.close(); //закрываем файл
+}
+
+//БЛОК ОПИСАНИЯ КЛАССОВ
+
+class Food{ //класс для описания объекта еды
 public:
-     int x = 1 + (rand()%(WIDTH-3));
-     int y = 1 + (rand()%(HEIGHT-2));
-     char sign = 'F';
+     int x = 1 + (rand() % (WIDTH - 3)); //случайно задается координата x
+     int y = 1 + (rand() % (HEIGHT - 2)); //случайно задается координата y
+     char sign = '@'; //символ отрисовки еды на игровом поле
 };
 
 
-class Snake{
+class Snake{//класс для описания объекта змеи
 public:
-    int dir = UP;
-    char sign = 'o';
-    int x[MAX_LEN_SNAKE] = {0};
-    int y[MAX_LEN_SNAKE] = {0};
-    int len = 2;
+    int dir = UP; //направление движения змеи
+    char sign = 'o'; //символ отрисовки змеи на игровом поле
+    int x[MAX_LEN_SNAKE] = {0}; //массив координат по оси x
+    int y[MAX_LEN_SNAKE] = {0}; //массив координат по оси н
+    int len = 2; //длина змеи
 
 };
 
 
-Snake checkKeys(Snake snake){
-    if (GetKeyState('W') & 0x8000){
-            if(snake.dir != DOWN) snake.dir = UP;
-        }
-        if (GetKeyState('S') & 0x8000){
-            if(snake.dir != UP) snake.dir = DOWN;
-        }
-        if (GetKeyState('A') & 0x8000){
-            if(snake.dir != RIGHT) snake.dir = LEFT;
-        }
-        if (GetKeyState('D') & 0x8000){
-            if(snake.dir != LEFT) snake.dir = RIGHT;
-        }
-    return snake;
-}
-
-
-
-class Game{
-public:
-    Snake snake;
-
-    void gotoxy(short x, short y){SetConsoleCursorPosition(hStdOut, {x, y});}
-
-
-    void showMenu(){
-        exxit = false;
-        while (!exxit){
-            system("cls");
-            cout<<Logo;
-            for(int i=0; i<MENUPOINTS; i++){
-                if(currMenu == i)cout<<"\t\t\t\t>>>\t"<<MenuText[i];
-                else cout<<"\t\t\t\t\t"<<MenuText[i];
+Snake checkKeys(Snake snake){ //функция для считывания нажатий клавиатуры и управления змейкой
+    if (GetKeyState('W') & 0x8000){ //считываем нажатие клавиши W
+            if(snake.dir != DOWN) { // если это вохможно, то изменяем дивжение
+                snake.dir = UP;
             }
-            cout<<"\n\t\t____________________________________________________________\n\t\t\t\t\tYour map: "<<selectMap<<endl;
+        }
+        if (GetKeyState('S') & 0x8000){ //считываем нажатие клавиши S
+            if(snake.dir != UP) { // если это вохможно, то изменяем дивжение
+                snake.dir = DOWN;
+            }
+        }
+        if (GetKeyState('A') & 0x8000){ //считываем нажатие клавиши A
+            if(snake.dir != RIGHT) { // если это вохможно, то изменяем дивжение
+                snake.dir = LEFT;
+            }
+        }
+        if (GetKeyState('D') & 0x8000){ //считываем нажатие клавиши D
+            if(snake.dir != LEFT) { // если это вохможно, то изменяем дивжение
+                snake.dir = RIGHT;
+            }
+        }
+    return snake;  // возвращаем объект змеи
+}
+
+
+class Game{ //класс для описания работы игры
+public:
+    Snake snake; //создание объекта змеи
+
+    void gotoxy(short x, short y){ //функция для переноса курсорв в консоли в точку (x,y)
+        SetConsoleCursorPosition(hStdOut, {x, y}); //переносим курсор стандартной функцией
+    }
+
+    void showMenu(){ //функция отрисовки меню
+        exxit = false;
+        while (!exxit){ //основной цикл
+            system("cls"); //очистка консоли
+            cout<<Logo; //вывод лого
+            for (int i = 0; i < MENUPOINTS; i++){ //цикл для вывода пунктов меню
+                if(currMenu == i){
+                    cout<<"\t\t\t\t>>>\t"<<MenuText[i];
+                }
+                else {
+                    cout<<"\t\t\t\t\t"<<MenuText[i];
+                }
+            }
+            cout<<"\n\t\t____________________________________________________________\n\t\t\t\t\tYour map: "<<selectMap<<endl; //вывод текущих сложности и карты
             cout<<"\t\t\t\t\t\Your Difficulty: "<<LevelsText[diff/2 - 2];
 
-            gotoxy(0, 13+currMenu);
-            ch = _getch();
-            if (ch == 224) ch = _getch();
+            gotoxy(0, 13 + currMenu); //перемещение курсора в точку (0,13)
+            ch = _getch(); // считываем нажатие клавишт
+            if (ch == 224) {
+                ch = _getch();
+            }
 
-            switch(ch){
-                case 27: exxit = true;  system("cls");   break;
-                case 72: currMenu--;    break;
-                case 80: currMenu++;    break;
-                case 13:
+            switch (ch){
+                case 27: exxit = true;  system("cls");   break; //обработка нажатие клавиши Escape
+                case 72: currMenu--;    break; //обработка нажатия стрелки вверх
+                case 80: currMenu++;    break; //обработка нажатия стрелки вниз
+                case 13:  //обработка нажатия клавиши Enter, вызов соответствующих функций
                     system("cls");
                     if (currMenu == 0){
                         run();
                     }
                     if (currMenu == 1){
-                            setDifficulty();
+                        setDifficulty();
                     }
                     if (currMenu == 2){
                         setMap();
@@ -185,22 +219,34 @@ public:
                     if (currMenu == 3){
                         getRecords();
                     }
+                    if (currMenu == 4){
+                        exxit = true;
+                    }
                 break;
+            } //реализация границ меню, чтобы курсор не вышел за граници
+            if (currMenu < 0) {
+                currMenu = 0;
             }
-        if (currMenu < 0) currMenu = 0;
-        if (currMenu > 4) currMenu = 4;
+            if (currMenu > 4) {
+                    currMenu = 4;
+            }
         }
     }
 
-    void endGame(){
+    void endGame(){ //функция обработки о
         ofstream out;
         exxit = false;
-        if(diff == 4 && easy_r < snake.len) easy_r = snake.len;
-        if(diff == 6 && hard_r < snake.len) hard_r = snake.len;
-        if(diff == 8 && insane_r < snake.len) insane_r = snake.len;
+        if (diff == 4 && easy_r < snake.len) {
+            easy_r = snake.len;
+        }
+        if (diff == 6 && hard_r < snake.len) {
+            hard_r = snake.len;
+        }
+        if (diff == 8 && insane_r < snake.len) {
+            insane_r = snake.len;
+        }
         out.open("records.txt");
-        out << easy_r<<endl<<hard_r<<endl<<insane_r;
-
+        out<<easy_r<<endl<<hard_r<<endl<<insane_r<<endl;
 
         while (!exxit){
             system("cls");
@@ -208,10 +254,11 @@ public:
             cout<<"\n\n\n\n\t\t\t\t\tYou Lose";
             cout<<"\n\t\t\t\t\tYour score: "<<snake.len;
             ch = _getch();
-            if (ch == 224)ch = _getch();
+            if (ch == 224) {
+                ch = _getch();
+            }
              switch(ch){
-                case 13:
-                    exxit = true;
+                case 13: exxit = true;
             }
         }
         exxit = false;
@@ -224,16 +271,21 @@ public:
             system("cls");
             cout<<Logo;
             cout<<"\t\t\t\t\tChoose Your Map\n";
-            for(int i=0; i<size(MapsText); i++){
-                if(currMenu == i)cout<<"\t\t\t\t>>>\t"<<MapsText[i];
-                else cout<<"\t\t\t\t\t"<<MapsText[i];
+            for (int i = 0; i < size(MapsText); i++){
+                if(currMenu == i) {
+                    cout<<"\t\t\t\t>>>\t"<<MapsText[i];
+                }
+                else {
+                    cout<<"\t\t\t\t\t"<<MapsText[i];
+                }
             }
             cout<<"\t\t\t\t\tYour map: "<<selectMap;
             gotoxy(0, currMenu);
             ch = _getch();
-            if (ch == 224)ch = _getch();
-
-            switch(ch){
+            if (ch == 224) {
+                ch = _getch();
+            }
+            switch (ch){
                 case 27: exxit = true;   break;
                 case 72: currMenu--;    break;
                 case 80: currMenu++;    break;
@@ -257,11 +309,15 @@ public:
                     }
                 break;
             }
-            if (currMenu < 0) currMenu = 0;
-            if (currMenu > size(MapsText)-1) currMenu = size(MapsText)-1;
-        }
-                exxit = false;
+            if (currMenu < 0) {
                 currMenu = 0;
+            }
+            if (currMenu > size(MapsText) - 1) {
+                currMenu = size(MapsText) - 1;
+            }
+        }
+        exxit = false;
+        currMenu = 0;
 
     }
 
@@ -272,17 +328,22 @@ public:
             system("cls");
             cout<<Logo;
             cout<<"\t\t\t\t\tChoose Your Difficulty\n";
-            for(int i=0; i<size(LevelsText); i++){
-                if(currMenu == i)cout<<"\t\t\t\t>>>\t"<<LevelsText[i];
-                else cout<<"\t\t\t\t\t"<<LevelsText[i];
+            for (int i = 0; i < size(LevelsText); i++){
+                if (currMenu == i) {
+                    cout<<"\t\t\t\t>>>\t"<<LevelsText[i];
+                }
+                else {
+                    cout<<"\t\t\t\t\t"<<LevelsText[i];
+                }
             }
             cout<<"\t\t\t\t\tYour Difficulty: "<<LevelsText[diff/2 - 2];
 
             gotoxy(0, currMenu);
             ch = _getch();
-            if (ch == 224)ch = _getch();
-
-            switch(ch){
+            if (ch == 224) {
+                ch = _getch();
+            }
+            switch (ch){
                 case 27: exxit = true;   break;
                 case 72: currMenu--;    break;
                 case 80: currMenu++;    break;
@@ -291,63 +352,95 @@ public:
                     system("cls");
                     if (currMenu == 0){
                         diff = 4;
+                        bestScore = easy_r;
                     }
                     if (currMenu == 1){
                         diff = 6;
+                        bestScore = hard_r;
                     }
                     if (currMenu == 2){
                         diff = 8;
+                        bestScore = insane_r;
                     }
                 break;
             }
-            if (currMenu < 0) currMenu = 0;
-            if (currMenu > 3) currMenu = 3;
-        }
-                exxit = false;
+            if (currMenu < 0) {
                 currMenu = 0;
+            }
+            if (currMenu > 2) {
+                currMenu = 2;
+            }
+        }
+        exxit = false;
+        currMenu = 0;
 
     }
 
     void run(){
         loadMap();
-        snake.x[0] = WIDTH/2;
-        snake.y[0] = HEIGHT/2;
+        snake.x[0] = WIDTH/4;
+        snake.y[0] = HEIGHT/4;
         int time = clock();
+        coef = (snake.len - 2) /5;
         Food food;
 
         while(isRunning){
             gotoxy(0, 0);
             snake = checkKeys(snake);
-            if(snake.x[0] == food.x && snake.y[0] == food.y){
+            if (snake.x[0] == food.x && snake.y[0] == food.y){
                 food.x = 1 + (rand()%(WIDTH-3));
                 food.y = 1 + (rand()%(HEIGHT-2));
                 snake.len++;
             }
-            if(snake.x[0] == WIDTH-1) snake.x[0] = 0;
-            if(snake.x[0] == 0) snake.x[0] = WIDTH-2;
-            if(Map[snake.y[0]][snake.x[0]] != ' '){isRunning = false;cout<<1;}
-            if((clock() - time)* diff / CLOCKS_PER_SEC >= 1){
+            if ((snake.len - 2) /5 > coef){
+                diff += 1;
+                coef += 1;
+            }
+
+            if (Map[snake.y[0]][snake.x[0]] != ' ') {
+                isRunning = false;
+                cout<<1;
+            }
+            if ((clock() - time)* diff / CLOCKS_PER_SEC >= 1){
                 time = clock();
-                if(snake.dir == UP) --snake.y[0];
-                if(snake.dir == DOWN) ++snake.y[0];
-                if(snake.dir == LEFT) --snake.x[0];
-                if(snake.dir == RIGHT) ++snake.x[0];
-                if(Map[snake.y[0]][snake.x[0]] != ' ' && Map[snake.y[0]][snake.x[0]] != food.sign) isRunning = false;
+                if (snake.dir == UP) --snake.y[0];
+                if (snake.dir == DOWN) ++snake.y[0];
+                if (snake.dir == LEFT) --snake.x[0];
+                if (snake.dir == RIGHT) ++snake.x[0];
+                if (snake.x[0] == WIDTH-1) snake.x[0] = 0;
+                if (snake.x[0] == -1) snake.x[0] = WIDTH-2;
+                if (snake.y[0] == HEIGHT) snake.y[0] = 0;
+                if (snake.y[0] == -1) snake.y[0] = HEIGHT-1;
+
+                for (int i = 2; i<snake.len; i++){
+                    if(snake.x[0] == snake.x[i] && snake.y[0] == snake.y[i]) isRunning = false;
+                }
 
                 Map[food.y][food.x] = food.sign;
+                if (Map[snake.y[0]][snake.x[0]] != ' ' && Map[snake.y[0]][snake.x[0]] != food.sign) {
+                    isRunning = false;
+                }
 
-                for(int i = snake.len-2; i>= 0; i--){
+                for (int i = snake.len; i>= 0; i--){
                     snake.x[i+1] = snake.x[i];
                     snake.y[i+1] = snake.y[i];
                 }
+                cout<<Logo;
+                for (int i = 0; i < snake.len; i++) {
+                    Map[snake.y[i]][snake.x[i]] = snake.sign;
+                }
 
-                for(int i = 0; i < snake.len; i++) Map[snake.y[i]][snake.x[i]] = snake.sign;
                 Map[snake.y[0]][snake.x[0]] = '0';
+                for (int i = 0; i < HEIGHT; i++) {
+                    cout<<"\t\t\t\t"<<Map[i];
+                }
+                cout<<"\t\t\t\t\tScore: "<<snake.len - 1<<endl;
+                cout<<"\t\t\t\t\tBestScore: "<<bestScore<<endl;
 
-                for(int i = 0; i < HEIGHT; i++) cout<<"\t\t\t\t"<<Map[i];
-                cout<<"\t\t\t\t\tScore: "<<snake.len -1 ;
 
-                for(int i = 0; i < snake.len; i++) Map[snake.y[i]][snake.x[i]] = ' ';
+                for (int i = 0; i < snake.len; i++) {
+                    Map[snake.y[i]][snake.x[i]] = ' ';
+                }
 
             }
         }
@@ -368,10 +461,11 @@ public:
             cout<<"\n\t\t\t\t\tHard mode: "<<hard_r;
             cout<<"\n\t\t\t\t\tInsane mode: "<<insane_r;
             ch = _getch();
-            if (ch == 224)ch = _getch();
-             switch(ch){
-                case 13:
-                    exxit = true;
+            if (ch == 224) {
+                ch = _getch();
+            }
+            switch (ch){
+                case 13: exxit = true;
             }
         }
         exxit = false;
@@ -379,7 +473,7 @@ public:
 
     void loadMap(){
         string str;
-        for(int i = 0; i < HEIGHT; i++){
+        for (int i = 0; i < HEIGHT; i++){
             getline(fin, str);
             Map[i] = str + '\n';
         }
@@ -388,38 +482,25 @@ public:
 
 };
 
-//BASIC FUNCTIONS
-void ClearScreen(){
-    DWORD n;
-    DWORD size;
-    COORD coord = {0};
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    HANDLE h = GetStdHandle ( STD_OUTPUT_HANDLE );
-    GetConsoleScreenBufferInfo ( h, &csbi );
-    size = csbi.dwSize.X * csbi.dwSize.Y;
-    FillConsoleOutputCharacter ( h, TEXT ( ' ' ), size, coord, &n );
-    GetConsoleScreenBufferInfo ( h, &csbi );
-    FillConsoleOutputAttribute ( h, csbi.wAttributes, size, coord, &n );
-    SetConsoleCursorPosition ( h, coord );
-}
-
 
 int main(){
     HWND hwnd;
     char Title[1024];
     GetConsoleTitle(Title, 1024);
-    hwnd=FindWindow(NULL, Title);
+    hwnd = FindWindow(NULL, Title);
     SetConsoleTextAttribute(hwnd,FOREGROUND_GREEN | FOREGROUND_INTENSITY );
-    MoveWindow(hwnd,0,0,1920,1080,TRUE);
+    MoveWindow(hwnd,0,0,800,700,TRUE);
     HANDLE console_color;
     srand((unsigned int)time(NULL));
     console_color = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(console_color, 6);
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    loadRecords();
     system("color 8E");
+
+    loadRecords();
     fin.open("map1.txt");
+    bestScore = easy_r;
     Game game;
     game.showMenu();
 
